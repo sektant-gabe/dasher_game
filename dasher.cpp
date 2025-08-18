@@ -54,7 +54,7 @@ int main()
         nebulae[i].rec.y       = 0.0;
         nebulae[i].rec.width   = nebula.width / 8;
         nebulae[i].rec.height  = nebula.height / 8;
-        nebulae[i].pos.x       = windowDimensions[0] + 100.0f * i;
+        nebulae[i].pos.x       = windowDimensions[0] + 300.0f * i;
         nebulae[i].pos.y       = windowDimensions[1] - nebula.height / 8;
         nebulae[i].frame       = 0;
         nebulae[i].updateTime  = 1.0 / 16.0;
@@ -118,10 +118,13 @@ int main()
         {
             nebulae[i].pos.x       += nebulaVelocity * dt;
             nebulae[i].runningTime += dt;
+        }
 
+        for (int i = 0; i < sizeOfNebulae; i++)
+        {
             if (nebulae[i].pos.x < 0 - nebulae[i].rec.width)
             {
-                nebulae[i].pos.x = windowDimensions[0] + nebulae[i].rec.width;
+                nebulae[i].pos.x = windowDimensions[0] + 300.0f * i;
             }
         }
 
