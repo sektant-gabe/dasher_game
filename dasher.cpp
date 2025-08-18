@@ -15,12 +15,6 @@ struct AnimData
     float     runningTime;
 };
 
-void initializePlayer() {
-
-};
-
-void initializeNebulae() {}
-
 bool isOnGround(AnimData& data, int windowHeight)
 {
     return data.pos.y >= windowHeight - data.rec.height;
