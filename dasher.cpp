@@ -21,7 +21,7 @@ int main()
     SetTargetFPS(target_fps);
 
     // --- Physics ---
-    const int gravity{ 1'800 };
+    const int gravity{ 1'300 };
     const int player_jump_velocity{ -600 };
     bool      isInAir{};
     int       velocity{};
@@ -40,10 +40,10 @@ int main()
     playerData.runningTime = 0;
 
     // --- Nebula ---
-    int       nebulaVelocity{ -400 };
+    int       nebulaVelocity{ -230 };
     Texture2D nebula = LoadTexture("textures/12_nebula_spritesheet.png");
 
-    const int sizeOfNebulae{ 5 };
+    const int sizeOfNebulae{ 3 };
 
     AnimData nebulae[sizeOfNebulae]{};
 
@@ -54,13 +54,12 @@ int main()
         nebulae[i].rec.y       = 0.0;
         nebulae[i].rec.width   = nebula.width / 8;
         nebulae[i].rec.height  = nebula.height / 8;
-        nebulae[i].pos.x       = windowDimensions[0] + 800 * i;
+        nebulae[i].pos.x       = windowDimensions[0] + 900 * i;
         nebulae[i].pos.y       = windowDimensions[1] - nebula.height / 8;
         nebulae[i].frame       = 0;
         nebulae[i].updateTime  = 1.0 / 16.0;
         nebulae[i].runningTime = 0.0;
     }
-
 
     while (!WindowShouldClose())
     {
@@ -118,14 +117,6 @@ int main()
         {
             nebulae[i].pos.x       += nebulaVelocity * dt;
             nebulae[i].runningTime += dt;
-        }
-
-        for (int i = 0; i < sizeOfNebulae; i++)
-        {
-            if (nebulae[i].pos.x < 0 - nebulae[i].rec.width)
-            {
-                nebulae[i].pos.x = windowDimensions[0] + 1000.0f * i;
-            }
         }
 
         for (int i = 0; i < sizeOfNebulae; i++)
