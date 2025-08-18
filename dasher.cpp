@@ -34,6 +34,24 @@ void animateSprite(AnimData& data, int framesAmount)
     }
 }
 
+void drawLayer(float x, Texture2D texture, float scale = 2.0f)
+{
+    Vector2 pos1{ x, 0.0f };
+    DrawTextureEx(texture, pos1, 0.0f, scale, WHITE);
+
+    Vector2 pos2{ x + texture.width * scale, 0.0f };
+    DrawTextureEx(texture, pos2, 0.0f, scale, WHITE);
+}
+
+void updateLayer(float& x, Texture2D texture, float dt, float speed, float scale = 2.0f)
+{
+    x += -speed * dt;
+    if (x <= -texture.width * scale)
+    {
+        x = 0.0f;
+    }
+}
+
 void updatePosition(AnimData& data, int velocity, float dt, Axis axis)
 {
     if (axis == X)
@@ -45,6 +63,14 @@ void updatePosition(AnimData& data, int velocity, float dt, Axis axis)
         data.pos.y += velocity * dt;
     }
     data.runningTime += dt;
+}
+
+void respawnNebula(AnimData& nebula, int windowWidth, int spacing, int index)
+{
+    if (nebula.pos.x <= -nebula.rec.width)
+    {
+        nebula.pos.x = windowWidth + spacing * index;
+    }
 }
 
 int main()
@@ -62,6 +88,14 @@ int main()
     const int gravity{ 1'300 };
     const int player_jump_velocity{ -600 };
     int       velocity{};
+
+    // --- Background ---
+    Texture2D background = LoadTexture("textures/far-buildings.png");
+    float     backgroundX{ 0 };
+    Texture2D foreground = LoadTexture("textures/foreground.png");
+    float     foregroundX{ 0 };
+    Texture2D middleground = LoadTexture("textures/back-buildings.png");
+    float     middlegroundX{ 0 };
 
     // --- Player ---
     Texture2D player = LoadTexture("textures/scarfy.png");
@@ -104,6 +138,16 @@ int main()
 
         ClearBackground(background_color);
 
+        // Update layers
+        updateLayer(backgroundX, background, dt, 20.0f);
+        updateLayer(middlegroundX, middleground, dt, 40.0f);
+        updateLayer(foregroundX, foreground, dt, 60.0f);
+
+        // Draw layers
+        drawLayer(backgroundX, background);
+        drawLayer(middlegroundX, middleground);
+        drawLayer(foregroundX, foreground);
+
         // Game loop
 
         // Jump
@@ -135,6 +179,7 @@ int main()
         for (int i = 0; i < sizeOfNebulae; i++)
         {
             updatePosition(nebulae[i], nebulaVelocity, dt, X);
+            respawnNebula(nebulae[i], windowDimensions[0], 900, i);
         }
 
         // Draw actors
@@ -147,6 +192,7 @@ int main()
         // Game loop end
         EndDrawing();
     }
+    UnloadTexture(background);
     UnloadTexture(nebula);
     UnloadTexture(player);
     CloseWindow();
