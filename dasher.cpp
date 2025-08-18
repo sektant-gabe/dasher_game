@@ -21,7 +21,7 @@ int main()
     SetTargetFPS(target_fps);
 
     // --- Physics ---
-    const int gravity{ 1'000 };
+    const int gravity{ 1'800 };
     const int player_jump_velocity{ -600 };
     bool      isInAir{};
     int       velocity{};
@@ -54,7 +54,7 @@ int main()
         nebulae[i].rec.y       = 0.0;
         nebulae[i].rec.width   = nebula.width / 8;
         nebulae[i].rec.height  = nebula.height / 8;
-        nebulae[i].pos.x       = windowDimensions[0] + 300.0f * i;
+        nebulae[i].pos.x       = windowDimensions[0] + 800 * i;
         nebulae[i].pos.y       = windowDimensions[1] - nebula.height / 8;
         nebulae[i].frame       = 0;
         nebulae[i].updateTime  = 1.0 / 16.0;
@@ -124,7 +124,7 @@ int main()
         {
             if (nebulae[i].pos.x < 0 - nebulae[i].rec.width)
             {
-                nebulae[i].pos.x = windowDimensions[0] + 300.0f * i;
+                nebulae[i].pos.x = windowDimensions[0] + 1000.0f * i;
             }
         }
 
