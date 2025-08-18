@@ -1,5 +1,11 @@
 #include "raylib.h"
 
+enum Axis
+{
+    X,
+    Y
+};
+
 struct AnimData
 {
     Rectangle rec;
@@ -8,6 +14,38 @@ struct AnimData
     float     updateTime;
     float     runningTime;
 };
+
+bool isOnGround(AnimData& data, int windowHeight)
+{
+    return data.pos.y >= windowHeight - data.rec.height;
+}
+
+void animateSprite(AnimData& data, int framesAmount)
+{
+    if (data.runningTime >= data.updateTime && isOnGround(data, 380))
+    {
+        data.runningTime = 0.0;
+        data.rec.x       = data.frame * data.rec.width;
+        data.frame++;
+        if (data.frame > framesAmount - 1)
+        {
+            data.frame = 0;
+        }
+    }
+}
+
+void updatePosition(AnimData& data, int velocity, float dt, Axis axis)
+{
+    if (axis == X)
+    {
+        data.pos.x += velocity * dt;
+    }
+    if (axis == Y)
+    {
+        data.pos.y += velocity * dt;
+    }
+    data.runningTime += dt;
+}
 
 int main()
 {
@@ -23,7 +61,6 @@ int main()
     // --- Physics ---
     const int gravity{ 1'300 };
     const int player_jump_velocity{ -600 };
-    bool      isInAir{};
     int       velocity{};
 
     // --- Player ---
@@ -42,11 +79,10 @@ int main()
     // --- Nebula ---
     int       nebulaVelocity{ -230 };
     Texture2D nebula = LoadTexture("textures/12_nebula_spritesheet.png");
-
     const int sizeOfNebulae{ 3 };
+    AnimData  nebulae[sizeOfNebulae]{};
 
-    AnimData nebulae[sizeOfNebulae]{};
-
+    // Initiate nebulas
     for (int i = 0; i < sizeOfNebulae; i++)
     {
         nebulae[i].rec.x       = 0.0;
@@ -63,72 +99,56 @@ int main()
 
     while (!WindowShouldClose())
     {
+        // Delta time
         const float dt{ GetFrameTime() };
 
         BeginDrawing();
 
         ClearBackground(background_color);
 
-        if (playerData.pos.y >= windowDimensions[1] - playerData.rec.height)
-        {
-            velocity = 0;
-            isInAir  = false;
-        }
-        else
-        {
-            velocity += gravity * dt;
-            isInAir   = true;
-        }
+        // Game loop
 
-        if (IsKeyDown(KEY_SPACE) && !isInAir)
+        // Jump
+        if (IsKeyDown(KEY_SPACE) && isOnGround(playerData, windowDimensions[1]))
         {
             velocity += player_jump_velocity;
         }
 
-        if (playerData.runningTime >= playerData.updateTime && !isInAir)
-        {
-            playerData.runningTime = 0.0;
-            playerData.rec.x       = playerData.frame * playerData.rec.width;
-            playerData.frame++;
-            if (playerData.frame > 5)
-            {
-                playerData.frame = 0;
-            }
-        }
-
-        playerData.pos.y       += velocity * dt;
-        playerData.runningTime += dt;
-
+        // Animate sprites
+        animateSprite(playerData, 6);
         for (int i = 0; i < sizeOfNebulae; i++)
         {
-            if (nebulae[i].runningTime >= nebulae[i].updateTime)
-            {
-                nebulae[i].runningTime = 0.0;
-                nebulae[i].rec.x       = nebulae[i].frame * nebulae[i].rec.width;
-                nebulae[i].frame++;
-                if (nebulae[i].frame > 7)
-                {
-                    nebulae[i].frame = 0;
-                }
-            }
+            animateSprite(nebulae[i], 8);
         }
 
+        // Update positions
+        //// Player
+        updatePosition(playerData, velocity, dt, Y);
+        if (isOnGround(playerData, windowDimensions[1]))
+        {
+            velocity = 0;
+        }
+        else
+        {
+            velocity += gravity * dt;
+        }
+
+        //// Nebulas
         for (int i = 0; i < sizeOfNebulae; i++)
         {
-            nebulae[i].pos.x       += nebulaVelocity * dt;
-            nebulae[i].runningTime += dt;
+            updatePosition(nebulae[i], nebulaVelocity, dt, X);
         }
 
+        // Draw actors
+        DrawTextureRec(player, playerData.rec, playerData.pos, WHITE);
         for (int i = 0; i < sizeOfNebulae; i++)
         {
             DrawTextureRec(nebula, nebulae[i].rec, nebulae[i].pos, WHITE);
         }
 
-        DrawTextureRec(player, playerData.rec, playerData.pos, WHITE);
-
+        // Game loop end
         EndDrawing();
     }
-
     UnloadTexture(nebula);
     UnloadTexture(player);
     CloseWindow();
