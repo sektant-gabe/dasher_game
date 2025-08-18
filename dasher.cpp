@@ -15,6 +15,12 @@ struct AnimData
     float     runningTime;
 };
 
+void initializePlayer() {
+
+};
+
+void initializeNebulae() {}
+
 bool isOnGround(AnimData& data, int windowHeight)
 {
     return data.pos.y >= windowHeight - data.rec.height;
@@ -75,14 +81,12 @@ int main()
     playerData.frame       = 0;
     playerData.updateTime  = 1.0 / 12.0;
     playerData.runningTime = 0;
-
     // --- Nebula ---
     int       nebulaVelocity{ -230 };
     Texture2D nebula = LoadTexture("textures/12_nebula_spritesheet.png");
     const int sizeOfNebulae{ 3 };
-    AnimData  nebulae[sizeOfNebulae]{};
+    AnimData  nebulae[sizeOfNebulae];
 
-    // Initiate nebulas
     for (int i = 0; i < sizeOfNebulae; i++)
     {
         nebulae[i].rec.x       = 0.0;
@@ -90,8 +94,8 @@ int main()
         nebulae[i].rec.y       = 0.0;
         nebulae[i].rec.width   = nebula.width / 8;
         nebulae[i].rec.height  = nebula.height / 8;
-        nebulae[i].pos.x       = windowDimensions[0] + 900 * i;
-        nebulae[i].pos.y       = windowDimensions[1] - nebula.height / 8;
+        nebulae[i].pos.x       = 512 + 900 * i;
+        nebulae[i].pos.y       = 380 - nebula.height / 8;
         nebulae[i].frame       = 0;
         nebulae[i].updateTime  = 1.0 / 16.0;
         nebulae[i].runningTime = 0.0;
