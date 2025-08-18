@@ -43,25 +43,24 @@ int main()
     int       nebulaVelocity{ -400 };
     Texture2D nebula = LoadTexture("textures/12_nebula_spritesheet.png");
 
-    AnimData nebulaData{
-        { 0.0, 0.0, nebula.width / 8.0f, nebula.height / 8.0f }, // Rectangle rec
-        { windowDimensions[0] * 1.0f,
-         windowDimensions[1] - nebula.height / 8.0f }, // Vector2 pos
-        0, // int  frame
-        1.0 / 12.0, // float updateTime
-        0.0  // float runningTime
-    };
+    const int sizeOfNebulae{ 5 };
 
-    AnimData nebula2Data{
-        { 0.0, 0.0, nebula.width / 8.0f, nebula.height / 8.0f }, // Rectangle rec
-        { windowDimensions[0] + 300.0f,
-         windowDimensions[1] - nebula.height / 8.0f }, // Vector2 pos
-        0, // int  frame
-        1.0 / 16.0, // float updateTime
-        0.0  // float runningTime
-    };
+    AnimData nebulae[sizeOfNebulae]{};
 
-    AnimData nebulae[2]{ nebulaData, nebula2Data };
+    for (int i = 0; i < sizeOfNebulae; i++)
+    {
+        nebulae[i].rec.x       = 0.0;
+        nebulae[i].rec.y       = 0.0;
+        nebulae[i].rec.y       = 0.0;
+        nebulae[i].rec.width   = nebula.width / 8;
+        nebulae[i].rec.height  = nebula.height / 8;
+        nebulae[i].pos.x       = windowDimensions[0] + 100.0f * i;
+        nebulae[i].pos.y       = windowDimensions[1] - nebula.height / 8;
+        nebulae[i].frame       = 0;
+        nebulae[i].updateTime  = 1.0 / 16.0;
+        nebulae[i].runningTime = 0.0;
+    }
+
 
     while (!WindowShouldClose())
     {
@@ -87,45 +86,6 @@ int main()
             velocity += player_jump_velocity;
         }
 
-        nebulae[0].pos.x += nebulaVelocity * dt;
-        nebulae[1].pos.x += nebulaVelocity * dt;
-        playerData.pos.y += velocity * dt;
-
-        nebulae[0].runningTime += dt;
-        nebulae[1].runningTime += dt;
-        playerData.runningTime += dt;
-
-        if (nebulae[0].runningTime >= nebulae[0].updateTime)
-        {
-            nebulae[0].runningTime = 0.0;
-            nebulae[0].rec.x       = nebulae[0].frame * nebulae[0].rec.width;
-            nebulae[0].frame++;
-            if (nebulae[0].frame > 7)
-            {
-                nebulae[0].frame = 0;
-            }
-        }
-        if (nebulae[1].runningTime >= nebulae[1].updateTime)
-        {
-            nebulae[1].runningTime = 0.0;
-            nebulae[1].rec.x       = nebulae[1].frame * nebulae[1].rec.width;
-            nebulae[1].frame++;
-            if (nebulae[1].frame > 7)
-            {
-                nebulae[1].frame = 0;
-            }
-        }
-
-        if (nebulae[0].pos.x < 0 - nebulae[0].rec.width)
-        {
-            nebulae[0].pos.x = windowDimensions[0] + nebulae[0].rec.width;
-        }
-
-        if (nebulae[1].pos.x < 0 - nebulae[1].rec.width)
-        {
-            nebulae[1].pos.x = windowDimensions[0] + nebulae[1].rec.width;
-        }
-
         if (playerData.runningTime >= playerData.updateTime && !isInAir)
         {
             playerData.runningTime = 0.0;
@@ -136,13 +96,45 @@ int main()
                 playerData.frame = 0;
             }
         }
-        DrawTextureRec(nebula, nebulae[0].rec, nebulae[0].pos, WHITE);
-        DrawTextureRec(nebula, nebulae[1].rec, nebulae[1].pos, RED);
+
+        playerData.pos.y       += velocity * dt;
+        playerData.runningTime += dt;
+
+        for (int i = 0; i < sizeOfNebulae; i++)
+        {
+            if (nebulae[i].runningTime >= nebulae[i].updateTime)
+            {
+                nebulae[i].runningTime = 0.0;
+                nebulae[i].rec.x       = nebulae[i].frame * nebulae[i].rec.width;
+                nebulae[i].frame++;
+                if (nebulae[i].frame > 7)
+                {
+                    nebulae[i].frame = 0;
+                }
+            }
+        }
+
+        for (int i = 0; i < sizeOfNebulae; i++)
+        {
+            nebulae[i].pos.x       += nebulaVelocity * dt;
+            nebulae[i].runningTime += dt;
+
+            if (nebulae[i].pos.x < 0 - nebulae[i].rec.width)
+            {
+                nebulae[i].pos.x = windowDimensions[0] + nebulae[i].rec.width;
+            }
+        }
+
+        for (int i = 0; i < sizeOfNebulae; i++)
+        {
+            DrawTextureRec(nebula, nebulae[i].rec, nebulae[i].pos, WHITE);
+        }
 
         DrawTextureRec(player, playerData.rec, playerData.pos, WHITE);
 
         EndDrawing();
     }
+
     UnloadTexture(nebula);
     UnloadTexture(player);
     CloseWindow();
