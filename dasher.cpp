@@ -34,24 +34,6 @@ void animateSprite(AnimData& data, int framesAmount)
     }
 }
 
-void drawLayer(float x, Texture2D texture, float scale = 2.0f)
-{
-    Vector2 pos1{ x, 0.0f };
-    DrawTextureEx(texture, pos1, 0.0f, scale, WHITE);
-
-    Vector2 pos2{ x + texture.width * scale, 0.0f };
-    DrawTextureEx(texture, pos2, 0.0f, scale, WHITE);
-}
-
-void updateLayer(float& x, Texture2D texture, float dt, float speed, float scale = 2.0f)
-{
-    x += -speed * dt;
-    if (x <= -texture.width * scale)
-    {
-        x = 0.0f;
-    }
-}
-
 void updatePosition(AnimData& data, int velocity, float dt, Axis axis)
 {
     if (axis == X)
@@ -70,6 +52,24 @@ void respawnNebula(AnimData& nebula, int windowWidth, int spacing, int index)
     if (nebula.pos.x <= -nebula.rec.width)
     {
         nebula.pos.x = windowWidth + spacing * index;
+    }
+}
+
+void drawLayer(float x, Texture2D texture, float scale = 2.0f)
+{
+    Vector2 pos1{ x, 0.0f };
+    DrawTextureEx(texture, pos1, 0.0f, scale, WHITE);
+
+    Vector2 pos2{ x + texture.width * scale, 0.0f };
+    DrawTextureEx(texture, pos2, 0.0f, scale, WHITE);
+}
+
+void updateLayer(float& x, Texture2D texture, float dt, float speed, float scale = 2.0f)
+{
+    x += -speed * dt;
+    if (x <= -texture.width * scale)
+    {
+        x = 0.0f;
     }
 }
 
@@ -109,6 +109,7 @@ int main()
     playerData.frame       = 0;
     playerData.updateTime  = 1.0 / 12.0;
     playerData.runningTime = 0;
+
     // --- Nebula ---
     int       nebulaVelocity{ -230 };
     Texture2D nebula = LoadTexture("textures/12_nebula_spritesheet.png");
@@ -118,7 +119,6 @@ int main()
     for (int i = 0; i < sizeOfNebulae; i++)
     {
         nebulae[i].rec.x       = 0.0;
-        nebulae[i].rec.y       = 0.0;
         nebulae[i].rec.y       = 0.0;
         nebulae[i].rec.width   = nebula.width / 8;
         nebulae[i].rec.height  = nebula.height / 8;
@@ -138,14 +138,13 @@ int main()
 
         ClearBackground(background_color);
 
-        // Update layers
         updateLayer(backgroundX, background, dt, 20.0f);
-        updateLayer(middlegroundX, middleground, dt, 40.0f);
-        updateLayer(foregroundX, foreground, dt, 60.0f);
-
-        // Draw layers
         drawLayer(backgroundX, background);
+
+        updateLayer(middlegroundX, middleground, dt, 40.0f);
         drawLayer(middlegroundX, middleground);
+
+        updateLayer(foregroundX, foreground, dt, 60.0f);
         drawLayer(foregroundX, foreground);
 
         // Game loop
@@ -156,15 +155,13 @@ int main()
             velocity += player_jump_velocity;
         }
 
-        // Animate sprites
         animateSprite(playerData, 6);
         for (int i = 0; i < sizeOfNebulae; i++)
         {
             animateSprite(nebulae[i], 8);
         }
 
-        // Update positions
-        //// Player
+        // Player
         updatePosition(playerData, velocity, dt, Y);
         if (isOnGround(playerData, windowDimensions[1]))
         {
@@ -175,7 +172,7 @@ int main()
             velocity += gravity * dt;
         }
 
-        //// Nebulas
+        // Nebulas
         for (int i = 0; i < sizeOfNebulae; i++)
         {
             updatePosition(nebulae[i], nebulaVelocity, dt, X);
