@@ -81,6 +81,8 @@ int main()
     windowDimensions[1] = 380;
     const Color background_color{ BLACK };
     const int   target_fps{ 60 };
+    bool        colision{};
+
     InitWindow(windowDimensions[0], windowDimensions[1], "Dasher Game");
     SetTargetFPS(target_fps);
 
@@ -113,7 +115,7 @@ int main()
     // --- Nebula ---
     int       nebulaVelocity{ -230 };
     Texture2D nebula = LoadTexture("textures/12_nebula_spritesheet.png");
-    const int sizeOfNebulae{ 3 };
+    const int sizeOfNebulae{ 5 };
     AnimData  nebulae[sizeOfNebulae];
 
     for (int i = 0; i < sizeOfNebulae; i++)
@@ -128,6 +130,7 @@ int main()
         nebulae[i].updateTime  = 1.0 / 16.0;
         nebulae[i].runningTime = 0.0;
     }
+    float finishLine{ nebulae[sizeOfNebulae - 1].pos.x };
 
     while (!WindowShouldClose())
     {
@@ -137,6 +140,8 @@ int main()
         BeginDrawing();
 
         ClearBackground(background_color);
+
+        finishLine += nebulaVelocity * dt;
 
         updateLayer(backgroundX, background, dt, 20.0f);
         drawLayer(backgroundX, background);
@@ -174,23 +179,54 @@ int main()
 
         // Nebulas
         for (int i = 0; i < sizeOfNebulae; i++)
+
         {
             updatePosition(nebulae[i], nebulaVelocity, dt, X);
-            respawnNebula(nebulae[i], windowDimensions[0], 900, i);
+            // respawnNebula(nebulae[i], windowDimensions[0], 900, i);
         }
-
-        // Draw actors
-        DrawTextureRec(player, playerData.rec, playerData.pos, WHITE);
-        for (int i = 0; i < sizeOfNebulae; i++)
+        for (AnimData nebula : nebulae)
         {
-            DrawTextureRec(nebula, nebulae[i].rec, nebulae[i].pos, WHITE);
-        }
+            float     padding{ 50 };
+            Rectangle nebRec{
+                nebula.pos.x + padding,
+                nebula.pos.y + padding,
+                nebula.rec.width - 2 * padding,
+                nebula.rec.height - 2 * padding,
+            };
+            Rectangle playerRec{ playerData.pos.x,
+                                 playerData.pos.y,
+                                 playerData.rec.width,
+                                 playerData.rec.height };
 
+            if (CheckCollisionRecs(nebRec, playerRec))
+            {
+                colision = true;
+            }
+        }
+        if (colision)
+        {
+            DrawText("Game Over!", windowDimensions[0] / 4, windowDimensions[1] / 2, 44, WHITE);
+        }
+        else if (playerData.pos.x >= finishLine + nebula.width)
+        {
+            DrawText("YOU WON!", windowDimensions[0] / 4, windowDimensions[1] / 2, 66, GREEN);
+        }
+        else
+        {
+            // Draw actors
+            for (int i = 0; i < sizeOfNebulae; i++)
+            {
+                DrawTextureRec(nebula, nebulae[i].rec, nebulae[i].pos, WHITE);
+            }
+            DrawTextureRec(player, playerData.rec, playerData.pos, WHITE);
+        }
         // Game loop end
         EndDrawing();
     }
-    UnloadTexture(background);
-    UnloadTexture(nebula);
     UnloadTexture(player);
+    UnloadTexture(nebula);
+    UnloadTexture(foreground);
+    UnloadTexture(middleground);
+    UnloadTexture(background);
     CloseWindow();
 }
