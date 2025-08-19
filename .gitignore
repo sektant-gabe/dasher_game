@@ -1001,6 +1001,7 @@ gradle-app.setting
 *.a
 *.la
 *.lo
+*.idea
 
 # Shared objects (inc. Windows DLLs)
 *.so
